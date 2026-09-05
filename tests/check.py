@@ -13,6 +13,11 @@ ROOT = Path(__file__).resolve().parents[1]
 THEMES = ("academic", "dark", "minimal", "vibrant", "brand")
 
 
+def pdf_pages(path):
+    """Count page objects in a PDF emitted by Typst."""
+    return len(re.findall(rb"/Type\s*/Page\b", path.read_bytes()))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--typst", default="typst", help="Typst compiler executable")
@@ -56,26 +61,25 @@ def main():
         readme = deck / "readme.typ"
         readme.write_text(example.group(1))
         run("compile", readme, output / "readme.pdf")
-        page_count = '\n#context [#metadata(here().page())<page-count>]\n'
-        entry.write_text(entry.read_text() + page_count)
         gallery = deck / "gallery.typ"
-        gallery.write_text((ROOT / "gallery.typ").read_text() + page_count)
+        gallery.write_text((ROOT / "gallery.typ").read_text())
         for theme in THEMES:
-            run("compile", "--input", f"theme={theme}", entry, output / f"starter-{theme}.pdf")
-            run("compile", "--input", f"theme={theme}", gallery, output / f"gallery-{theme}.pdf")
-            for source, expected in ((entry, 6), (gallery, 44)):
-                count = json.loads(run("query", "--input", f"theme={theme}", source,
-                                       "<page-count>", "--field", "value", "--one"))
+            starter_pdf = output / f"starter-{theme}.pdf"
+            gallery_pdf = output / f"gallery-{theme}.pdf"
+            run("compile", "--input", f"theme={theme}", entry, starter_pdf)
+            run("compile", "--input", f"theme={theme}", gallery, gallery_pdf)
+            for source, pdf, expected in ((entry, starter_pdf, 6), (gallery, gallery_pdf, 44)):
+                count = pdf_pages(pdf)
                 assert count == expected, f"{theme} {source.name}: expected {expected} pages, got {count}"
             print(f"PASS {theme}: initialized starter + full gallery")
 
         # The shorter starter must retain six pages at each supported example size.
         for size in (22, 24):
             for theme in THEMES:
+                starter_pdf = output / f"starter-{theme}-{size}pt.pdf"
                 run("compile", "--input", f"text-size={size}", "--input", f"theme={theme}",
-                    entry, output / f"starter-{theme}-{size}pt.pdf")
-                count = json.loads(run("query", "--input", f"text-size={size}", "--input", f"theme={theme}",
-                                       entry, "<page-count>", "--field", "value", "--one"))
+                    entry, starter_pdf)
+                count = pdf_pages(starter_pdf)
                 assert count == 6, f"{size}pt {theme} starter spilled onto {count} pages"
         typography = deck / "typography.typ"
         shutil.copy2(ROOT / "tests/typography.typ", typography)
@@ -93,9 +97,10 @@ def main():
             '<circle cx="80" cy="50" r="24" fill="white"/></svg>'
         )
         regression = deck / "regression.typ"
-        regression.write_text((ROOT / "tests/regression.typ").read_text() + page_count)
-        run("compile", regression, output / "regression.pdf")
-        count = json.loads(run("query", regression, "<page-count>", "--field", "value", "--one"))
+        regression.write_text((ROOT / "tests/regression.typ").read_text())
+        regression_pdf = output / "regression.pdf"
+        run("compile", regression, regression_pdf)
+        count = pdf_pages(regression_pdf)
         assert count == 10, f"regression: expected 10 pages, got {count}"
         observed = json.loads(run("query", regression, "metadata", "--field", "value"))
         values = [value for value in observed if isinstance(value, str)]
