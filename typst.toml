@@ -2,7 +2,7 @@
 name = "sci-brain-slides"
 version = "0.1.0"
 entrypoint = "lib.typ"
-authors = ["sci-brain contributors"]
+authors = ["GiggleLiu <@GiggleLiu>", "sci-brain contributors"]
 license = "MIT"
 description = "Scientific talks with coordinated themes and layouts."
 repository = "https://github.com/GiggleLiu/sci-brain-slides"
