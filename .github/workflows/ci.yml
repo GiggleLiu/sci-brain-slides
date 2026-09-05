@@ -1,0 +1,21 @@
+name: Compile slides
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        typst: ["0.13.1", "0.15.1"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: typst-community/setup-typst@v4
+        with:
+          typst-version: ${{ matrix.typst }}
+      - run: sudo apt-get update && sudo apt-get install -y fonts-dejavu-core
+      - run: python3 tests/check.py
+      - run: git diff --check
