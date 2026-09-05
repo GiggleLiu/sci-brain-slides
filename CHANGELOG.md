@@ -11,5 +11,3 @@ Initial standalone release, extracted from sci-brain's `write-slides` library.
 - Headers and footers with quiet defaults; author-provided capitalization.
 - Validation on Typst 0.13.1 and 0.15.1, including all five themes at 20, 22,
   and 24 pt for the starter.
-
-Available from GitHub. Typst Universe submission is pending.

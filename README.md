@@ -12,33 +12,18 @@ tables, and conclusions. Extracted from the
 
 ## Get started
 
-Version 0.1.0 is available from this repository. Typst Universe publication is
-pending; use the local package path below until it is accepted.
-
 Install Typst 0.13.1 or newer and [DejaVu Sans](https://dejavu-fonts.github.io/).
 On Debian or Ubuntu, the font is in `fonts-dejavu-core`. Math and monospace fonts
 are bundled with Typst.
 
 ```sh
-git clone https://github.com/GiggleLiu/sci-brain-slides.git
-cd sci-brain-slides
-slides_packages=$(mktemp -d)
-mkdir -p "$slides_packages/preview/sci-brain-slides"
-ln -s "$PWD" "$slides_packages/preview/sci-brain-slides/0.1.0"
-typst init --package-path "$slides_packages" @preview/sci-brain-slides:0.1.0 ../my-talk
-typst compile --package-path "$slides_packages" ../my-talk/main.typ ../my-talk/main.pdf
-```
-
-Edit `../my-talk/main.typ`, then repeat the compile command. Keep `slides_packages`
-set to the same directory in your shell. This does not install anything globally.
-To try a theme or larger text, add `--input theme=dark --input text-size=22`.
-
-After [Typst Universe accepts the package](https://github.com/typst/packages/blob/main/docs/README.md),
-the local package path will no longer be needed:
-
-```sh
 typst init @preview/sci-brain-slides:0.1.0 my-talk
+cd my-talk
+typst compile main.typ
 ```
+
+To try a theme or larger text, compile with
+`--input theme=dark --input text-size=22`.
 
 ## Write a talk
 
